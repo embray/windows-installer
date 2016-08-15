@@ -207,14 +207,27 @@ def install_nano(install_directory):
         install_directory=install_directory)
 
 
-def install_nanorc(install_directory):
-    """Download and install nano syntax highlighting"""
+def install_nano_share_files(install_directory):
+    """Download and install nano syntax highlighting configuration files"""
+
     tar_install(
         url='http://www.nano-editor.org/dist/v2.2/nano-2.2.6.tar.gz',
         sha1='f2a628394f8dda1b9f28c7e7b89ccb9a6dbd302a',
         sha512='e1ee5d63725055290a5117b73352a8557cc3105c737643e341a95ebbb0cecb06c46f86a2363de8455e9de3940e3f920c47af92e19ef9c53862de8a605da08d8d',
         install_directory=install_directory,
-        strip_components=1)
+        strip_components=1,
+        include=[os.path.join('doc', 'syntax')])
+
+
+def install_nanorc(install_directory):
+    """
+    Install a nano.rc file into the home directory which includes
+    installed syntax highlighting configurations.
+
+    In this case install_directory is the path to nano share files
+    installed by install_nano_share_files.
+    """
+
     home = os.path.expanduser('~')
     nanorc = os.path.join(home, 'nano.rc')
     if not os.path.isfile(nanorc):
@@ -332,15 +345,16 @@ def main(args):
     make_dir = os.path.join(swc_dir, 'opt', 'make')
     make_bin = os.path.join(make_dir, 'bin')
     nano_dir = os.path.join(swc_dir, 'opt', 'nano')
-    nanorc_dir = os.path.join(swc_dir, 'share', 'nanorc')
+    nano_share_dir = os.path.join(swc_dir, 'share', 'nano')
     sqlite_dir = os.path.join(swc_dir, 'opt', 'sqlite')
     create_nosetests_entry_point(python_scripts_directory=bin_dir)
     install_make(install_directory=make_dir)
     install_nano(install_directory=nano_dir)
+    install_nano_share_files(install_directory=nano_share_dir)
     install_sqlite(install_directory=sqlite_dir)
 
     if args.update_nanorc:
-        install_nanorc(install_directory=nanorc_dir)
+        install_nanorc(install_directory=nano_share_dir)
 
     if args.update_profile:
         paths = [make_bin, nano_dir, sqlite_dir, bin_dir]
