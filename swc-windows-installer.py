@@ -233,7 +233,7 @@ def install_nanorc(install_directory):
     if not os.path.isfile(nanorc):
         syntax_dir = os.path.join(install_directory, 'doc', 'syntax')
         LOG.info('include nanorc from {} in {}'.format(syntax_dir, nanorc))
-        with open3(nanorc, 'w', newline='\n') as f:
+        with open3(nanorc, 'a', newline='\n') as f:
             for filename in os.listdir(syntax_dir):
                 if filename.endswith('.nanorc'):
                     path = os.path.join(syntax_dir, filename)
