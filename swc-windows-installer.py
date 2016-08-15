@@ -35,8 +35,10 @@ except ImportError:  # Python 2
 import logging
 import os
 import re
+import shutil
 import sys
 import tarfile
+import tempfile
 try:  # Python 3
     from urllib.request import urlopen as _urlopen
 except ImportError:  # Python 2
@@ -119,8 +121,13 @@ def transform(tarinfo, strip_components=0):
 
 
 def tar_install(url, install_directory, compression='*', strip_components=0,
-                **kwargs):
-    """Download and install a tar bundle"""
+                include=[], **kwargs):
+    """
+    Download and install a tar bundle
+
+    If specified, install only the files/directories listed in ``include``.
+    """
+
     if not os.path.isdir(install_directory):
         tar_bytes = download(url=url, **kwargs)
         tar_io = _BytesIO(tar_bytes)
@@ -132,9 +139,27 @@ def tar_install(url, install_directory, compression='*', strip_components=0,
         members = [
             transform(tarinfo=tarinfo, strip_components=strip_components)
             for tarinfo in tar_file]
-        tar_file.extractall(
-            path=install_directory,
-            members=[m for m in members if m is not None])
+
+        tmpdir = tempfile.mkdtemp()
+        try:
+            tar_file.extractall(
+                path=tmpdir,
+                members=[m for m in members if m is not None])
+
+            if not include:
+                shutil.copytree(tmpdir, install_directory)
+            else:
+                for path in include:
+                    src_path = os.path.join(tmpdir, path)
+                    dst_path = os.path.join(install_directory, path)
+
+                    if os.path.isdir(src_path):
+                        shutil.copytree(src_path, dst_path)
+                    else:
+                        os.makedirs(os.path.dirname(dst_path))
+                        shutil.copy(src_path, dst_path)
+        finally:
+            shutil.rmtree(tmpdir)
     else:
         LOG.info('existing installation at {}'.format(install_directory))
 
