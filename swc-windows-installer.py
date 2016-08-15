@@ -296,8 +296,9 @@ def get_r_bin_directory():
     return paths[version]
 
 
-def update_bash_profile(extra_paths=()):
-    """Create or append to a .bash_profile for Software Carpentry
+def create_bash_profile(install_directory, extra_paths=()):
+    """Create or append to a bash_profile for Software Carpentry.
+    This file can be sourced from the user's .bash_profile.
 
     Adds nano to the path, sets the default editor to nano, and adds
     additional paths for other executables.
@@ -312,11 +313,48 @@ def update_bash_profile(extra_paths=()):
         'export EDITOR=nano',
         '',
         ]
-    config_path = os.path.join(os.path.expanduser('~'), '.bash_profile')
-    LOG.info('update bash profile at {}'.format(config_path))
+
+    if not os.path.exists(install_directory):
+        os.makedirs(install_directory)
+
+    config_path = os.path.join(install_directory, 'bash_profile')
+    LOG.info('create default bash profile at {}'.format(config_path))
     LOG.debug('extra paths:\n* {}'.format('\n* '.join(extra_paths)))
-    with open(config_path, 'a') as f:
+    with open(config_path, 'w') as f:
         f.write('\n'.join(lines))
+
+
+def update_bash_profile(etc_dir):
+    """
+    Update the user's .bash_profile to source the default bash_profile for
+    Software Carpentry.
+    """
+
+    default_config_path = os.path.abspath(
+            os.path.join(etc_dir, 'bash_profile'))
+    config_path = os.path.join(os.path.expanduser('~'), '.bash_profile')
+
+    source_line = 'source {}'.format(default_config_path)
+
+    exists = False
+    # Don't write if the "source /etc/bash_profile" line already exists
+    if os.path.isfile(config_path):
+        exists = True
+
+        with open(config_path, 'r') as f:
+            for line in f:
+                if line.strip() == source_line:
+                    return
+
+    with open(config_path, 'a') as f:
+        if exists:
+            f.write('\n')
+
+        f.write('# Configuration for Software Carpentry software '
+                'installation\n')
+        f.write('# Comment out or remove this line to disable Software '
+                'Carpentry installation\n')
+        f.write(source_line)
 
 
 def make_posix_path(windows_path):
@@ -342,26 +380,31 @@ def main(args):
                       'path.'.format(swc_dir))
 
     bin_dir = os.path.join(swc_dir, 'bin')
+    etc_dir = os.path.join(swc_dir, 'etc')
     make_dir = os.path.join(swc_dir, 'opt', 'make')
     make_bin = os.path.join(make_dir, 'bin')
     nano_dir = os.path.join(swc_dir, 'opt', 'nano')
     nano_share_dir = os.path.join(swc_dir, 'share', 'nano')
     sqlite_dir = os.path.join(swc_dir, 'opt', 'sqlite')
+
     create_nosetests_entry_point(python_scripts_directory=bin_dir)
     install_make(install_directory=make_dir)
     install_nano(install_directory=nano_dir)
     install_nano_share_files(install_directory=nano_share_dir)
     install_sqlite(install_directory=sqlite_dir)
 
+    paths = [make_bin, nano_dir, sqlite_dir, bin_dir]
+    r_dir = get_r_bin_directory()
+    if r_dir:
+        paths.append(r_dir)
+
+    create_bash_profile(etc_dir, extra_paths=paths)
+
     if args.update_nanorc:
         install_nanorc(install_directory=nano_share_dir)
 
     if args.update_profile:
-        paths = [make_bin, nano_dir, sqlite_dir, bin_dir]
-        r_dir = get_r_bin_directory()
-        if r_dir:
-            paths.append(r_dir)
-        update_bash_profile(extra_paths=paths)
+        update_bash_profile(etc_dir)
 
 
 if __name__ == '__main__':
