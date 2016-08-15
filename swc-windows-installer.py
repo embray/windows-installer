@@ -377,12 +377,10 @@ if __name__ == '__main__':
              '(default: ${HOME}/.swc)')
     parser.add_argument(
         '--no-update-profile', dest='update_profile', action='store_false',
-        help="install files only; do not install paths to the user's "
-             ".bash_profile")
+        help="do not install updates to the user's .bash_profile")
     parser.add_argument(
         '--no-update-nanorc', dest='update_nanorc', action='store_false',
-        help="install files only; do not install updates to the user's "
-             "nanorc file")
+        help="do not install updates to the user's nano.rc file")
     parser.add_argument(
         '-v', '--verbose',
         choices=['critical', 'error', 'warning', 'info', 'debug'],
