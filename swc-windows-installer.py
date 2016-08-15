@@ -291,8 +291,18 @@ def make_posix_path(windows_path):
     return windows_path
 
 
-def main():
-    swc_dir = os.path.join(os.path.expanduser('~'), '.swc')
+def main(args):
+    swc_dir = os.path.abspath(args.dir)
+
+    if not os.path.exists(swc_dir):
+        try:
+            os.makedirs(swc_dir)
+        except OSError:
+            LOG.error('Could not create the installation directory {0}: make '
+                      'sure a file does not already exist at that path, '
+                      'and that you have permissions to write to the '
+                      'path.'.format(swc_dir))
+
     bin_dir = os.path.join(swc_dir, 'bin')
     make_dir = os.path.join(swc_dir, 'opt', 'make')
     make_bin = os.path.join(make_dir, 'bin')
@@ -302,13 +312,17 @@ def main():
     create_nosetests_entry_point(python_scripts_directory=bin_dir)
     install_make(install_directory=make_dir)
     install_nano(install_directory=nano_dir)
-    install_nanorc(install_directory=nanorc_dir)
     install_sqlite(install_directory=sqlite_dir)
-    paths = [make_bin, nano_dir, sqlite_dir, bin_dir]
-    r_dir = get_r_bin_directory()
-    if r_dir:
-        paths.append(r_dir)
-    update_bash_profile(extra_paths=paths)
+
+    if args.update_nanorc:
+        install_nanorc(install_directory=nanorc_dir)
+
+    if args.update_profile:
+        paths = [make_bin, nano_dir, sqlite_dir, bin_dir]
+        r_dir = get_r_bin_directory()
+        if r_dir:
+            paths.append(r_dir)
+        update_bash_profile(extra_paths=paths)
 
 
 if __name__ == '__main__':
@@ -317,6 +331,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        '-d', '--dir', metavar='DIR',
+        default=os.path.join(os.path.expanduser('~'), '.swc'),
+        help='installation directory for Software Carpentry software'
+             '(default: ${HOME}/.swc)')
+    parser.add_argument(
+        '--no-update-profile', dest='update_profile', action='store_false',
+        help="install files only; do not install paths to the user's "
+             ".bash_profile")
+    parser.add_argument(
+        '--no-update-nanorc', dest='update_nanorc', action='store_false',
+        help="install files only; do not install updates to the user's "
+             "nanorc file")
     parser.add_argument(
         '-v', '--verbose',
         choices=['critical', 'error', 'warning', 'info', 'debug'],
@@ -334,5 +361,5 @@ if __name__ == '__main__':
 
     LOG.info('Preparing your Software Carpentry awesomeness!')
     LOG.info('installer version {}'.format(__version__))
-    main()
+    main(args)
     LOG.info('Installation complete.')
