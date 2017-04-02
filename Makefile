@@ -69,8 +69,6 @@ $(env-runtime): $(cygwin-runtime) $(cygwin-runtime-extras)
 
 $(cygwin-runtime-extras): $(cygwin-runtime)
 	cp -r $(CYGWIN_EXTRAS)/* $(ENV_RUNTIME_DIR)
-	echo 'none /tmp usertemp binary,posix=0 0 0' >> $(ENV_RUNTIME_DIR)/etc/fstab
-	echo 'C:\Users /home ntfs binary,posix=1,acl 0 0' >> $(ENV_RUNTIME_DIR)/etc/fstab
 	@touch $@
 
 
