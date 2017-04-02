@@ -1,0 +1,8 @@
+# Ignore vim cruft
+.*.sw[po]
+
+# Directories created during the build, containing build artifacts
+dist
+download
+envs
+.stamps
