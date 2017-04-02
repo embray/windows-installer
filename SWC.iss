@@ -98,7 +98,7 @@ Type: filesandordirs; Name: "{#Runtime}\dev\mqueue"
 
 
 [Icons]
-Name: "{app}\Terminal"; Filename: "{#Bin}\mintty.exe"; Parameters: "-t '{#RunShTitle}'"; WorkingDir: "{app}"; Comment: "{#RunShDoc}"; IconFilename: "{#RunShIconFilename}"
+Name: "{app}\Terminal"; Filename: "{#Bin}\mintty.exe"; Parameters: "-t '{#RunShTitle}' {#RunSh}"; WorkingDir: "{app}"; Comment: "{#RunShDoc}"; IconFilename: "{#RunShIconFilename}"
 Name: "{group}\Terminal"; Filename: "{#Bin}\mintty.exe"; Parameters: "-t '{#RunShTitle}' {#RunSh}"; WorkingDir: "{app}"; Comment: "{#RunShDoc}"; IconFilename: "{#RunShIconFilename}"; Tasks: startmenu
 Name: "{commondesktop}\Terminal"; Filename: "{#Bin}\mintty.exe"; Parameters: "-t '{#RunShTitle}' {#RunSh}"; WorkingDir: "{app}"; Comment: "{#RunShDoc}"; IconFilename: "{#RunShIconFilename}"; Tasks: desktop
 
