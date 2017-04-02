@@ -1,5 +1,5 @@
 TARGETS=env-runtime cygwin-runtime cygwin-extras-runtime
-.PHONY: all $(TARGETS)
+.PHONY: all $(TARGETS) clean clean-envs clean-download clean-dist distclean
 
 ############################ Configurable Variables ###########################
 
@@ -67,8 +67,8 @@ $(env-runtime): $(cygwin-runtime) $(cygwin-runtime-extras)
 	@touch $@
 
 
-$(cygwin-runtime-extras): $(cygwin-runtime)
-	cp -r $(CYGWIN_EXTRAS)/* $(ENV_RUNTIME_DIR)
+$(cygwin-runtime-extras): $(cygwin-runtime) $(CYGWIN_EXTRAS)
+	cp -f -r $(CYGWIN_EXTRAS)/* $(ENV_RUNTIME_DIR)
 	@touch $@
 
 
@@ -92,3 +92,19 @@ $(CYGWIN_SETUP): | $(DOWNLOAD)
 
 $(DIRS):
 	mkdir "$@"
+
+
+clean: clean-envs clean-dist
+
+
+clean-envs:
+	rm -rf $(ENVS) $(STAMPS)
+
+clean-dist:
+	rm -rf $(DIST)
+
+clean-download:
+	rm -rf $(DOWNLOAD)
+
+
+distclean: clean clean-download
