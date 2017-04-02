@@ -39,7 +39,7 @@ SOURCES:=$(SWC_ISS) $(CYGWIN_EXTRAS) $(ICONS)
 CYGWIN_SETUP_NAME=setup-$(ARCH).exe
 CYGWIN_SETUP=$(DOWNLOAD)/$(CYGWIN_SETUP_NAME)
 CYGWIN_SETUP_URL=https://cygwin.com/$(CYGWIN_SETUP_NAME)
-CYGWIN_MIRROR=ftp://mirrors.kernel.org/sourceware/cygwin/
+CYGWIN_MIRROR=https://mirrors.kernel.org/sourceware/cygwin/
 
 SWC_INSTALLER=$(DIST)/SoftwareCarpentry-$(ARCH).exe
 
